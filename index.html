@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Divider — İki uygulama, tek ekran, tek dokunuş</title>
+<meta name="description" content="Divider: iki uygulamayı seç, tek dokunuşla bölünmüş ekranda aç. Üst üste ya da yan yana. Android ve iOS.">
+<meta property="og:title" content="Divider — İki uygulama, tek ekran">
+<meta property="og:description" content="İki uygulamayı seç, tek dokunuşla bölünmüş ekranda aç.">
+<meta property="og:image" content="assets/icon-512.png">
+<link rel="icon" type="image/png" href="assets/icon-512.png">
+<style>
+:root{
+  --bg:#0b1020;--bg2:#111a33;--card:#161f3a;--line:#263052;
+  --text:#eef2ff;--muted:#a3adc9;
+  --blue:#2f6bff;--blue2:#5aa9ff;--orange:#ff8a2a;--yellow:#f5c518;--green:#34d399;
+  --radius:20px;--max:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+.sr{position:absolute;left:-9999px}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(11,16,32,.75);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+.brand img{width:34px;height:34px;border-radius:9px}
+.links{display:flex;gap:22px;font-size:15px;color:var(--muted)}
+.links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:700;font-size:15px;transition:transform .15s,box-shadow .15s;border:1px solid transparent}
+.btn:hover{transform:translateY(-1px)}
+.btn.p{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 10px 30px rgba(47,107,255,.35)}
+.btn.g{border-color:var(--line);color:var(--text);background:rgba(255,255,255,.03)}
+.btn.s{padding:9px 16px;font-size:14px}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-size:13px}
+.lang button{background:none;border:0;color:var(--muted);padding:6px 10px;cursor:pointer;font-weight:700}
+.lang button.on{background:var(--blue);color:#fff}
+@media(max-width:760px){.links{display:none}}
+
+/* hero */
+.hero{position:relative;padding:88px 0 60px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-200px -100px auto;height:700px;background:
+  radial-gradient(600px 400px at 20% 30%,rgba(47,107,255,.35),transparent 70%),
+  radial-gradient(500px 400px at 80% 20%,rgba(255,138,42,.22),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--blue2);background:rgba(47,107,255,.12);border:1px solid rgba(90,169,255,.3);padding:6px 12px;border-radius:999px;margin-bottom:22px}
+h1{font-size:clamp(40px,6vw,68px);line-height:1.02;letter-spacing:-1.5px;font-weight:900}
+h1 .a{background:linear-gradient(90deg,var(--blue2),#8ec5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 .b{background:linear-gradient(90deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin:22px 0 30px;font-size:19px;color:var(--muted);max-width:540px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.store{display:inline-flex;align-items:center;gap:10px;background:#000;border:1px solid #333;border-radius:14px;padding:9px 16px 9px 12px;min-width:170px;transition:transform .15s,border-color .15s}
+.store:hover{transform:translateY(-2px);border-color:#666}
+.store svg{width:28px;height:28px;flex:none}
+.store small{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#bbb;line-height:1}
+.store b{display:block;font-size:17px;line-height:1.15}
+.store.soon{opacity:.6;cursor:default}
+.store .tag{margin-left:auto;font-size:10px;background:var(--yellow);color:#000;border-radius:6px;padding:2px 6px;font-weight:800}
+.proof{display:flex;gap:22px;margin-top:28px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.proof span::before{content:"✓ ";color:var(--green);font-weight:800}
+
+/* phone mock (interactive demo) */
+.demo{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px}
+.phone{width:290px;aspect-ratio:9/19.3;transition:width .45s,aspect-ratio .45s,transform .5s;background:#070a14;border-radius:42px;border:8px solid #1b2340;box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px #2b365a inset;position:relative;overflow:hidden;transition:transform .5s}
+.phone.land{width:440px;aspect-ratio:19.3/9;border-radius:36px}
+.phone.land .screen{padding:14px 14px 14px 40px}
+.phone.land .notch{top:50%;left:12px;transform:translateY(-50%);width:18px;height:70px}
+@media(max-width:480px){.phone.land{width:92vw}}
+.phone .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:84px;height:22px;background:#000;border-radius:999px;z-index:3}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;gap:6px;padding:40px 10px 14px;transition:flex-direction .3s}
+.screen.side{flex-direction:row}
+.pane{flex:1;border-radius:18px;background:var(--card);border:1px dashed #3a4670;display:flex;align-items:center;justify-content:center;position:relative;transition:background .35s,border-color .35s;overflow:hidden}
+.pane.full{border-style:solid;border-color:transparent}
+.pane .bd{position:absolute;top:8px;left:8px;font-size:10px;font-weight:800;color:#fff;padding:3px 7px;border-radius:999px;background:var(--blue)}
+.pane[data-slot="1"] .bd{background:var(--orange)}
+.pane .ph{font-size:11px;color:var(--muted);text-align:center;padding:0 10px}
+.pane .app{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:700}
+.pane .app i{width:46px;height:46px;border-radius:14px;display:block}
+.handle{position:absolute;width:56px;height:5px;border-radius:999px;background:var(--yellow);left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;box-shadow:0 0 14px rgba(245,197,24,.7)}
+.screen.side .handle{width:5px;height:56px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:380px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 6px;font-size:13px;font-weight:700;cursor:pointer;user-select:none;transition:transform .15s,border-color .15s}
+.chip:hover{transform:translateY(-2px);border-color:var(--blue2)}
+.chip i{width:22px;height:22px;border-radius:7px;display:block}
+.chip.used{opacity:.4;pointer-events:none}
+.demo-ctl{display:flex;gap:6px}
+.demo-ctl button{font:inherit;font-size:12px;font-weight:700;background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:6px 11px;cursor:pointer}
+.demo-ctl button.on{background:var(--blue);border-color:var(--blue)}
+.hint{text-align:center;font-size:12px;color:var(--muted);max-width:380px}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}.hero{padding-top:56px}.demo{margin-top:30px}}
+
+/* sections */
+section{padding:84px 0}
+.sec-h{max-width:640px;margin-bottom:44px}
+.sec-h .k{color:var(--blue2);font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase}
+h2{font-size:clamp(30px,4vw,44px);letter-spacing:-1px;line-height:1.1;margin:8px 0 14px;font-weight:900}
+.sec-h p{color:var(--muted);font-size:17px}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.g3,.g2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:#3a4a7a}
+.card .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;margin-bottom:16px;background:rgba(47,107,255,.15)}
+.card h3{font-size:19px;margin-bottom:8px;letter-spacing:-.3px}
+.card p{color:var(--muted);font-size:15px}
+.step{position:relative;padding-left:70px}
+.step .n{position:absolute;left:26px;top:26px;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;font-weight:900}
+.step{padding-left:76px}
+
+/* platforms */
+.plat{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.plat{grid-template-columns:1fr}}
+.plat .card{padding:30px}
+.plat .head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.plat .head b{font-size:22px}
+.plat .pill{font-size:12px;padding:3px 9px;border-radius:999px;font-weight:800}
+.pill.ok{background:rgba(52,211,153,.15);color:var(--green)}
+.pill.web{background:rgba(245,197,24,.15);color:var(--yellow)}
+.plat ul{list-style:none;margin-top:12px;display:grid;gap:8px;color:var(--muted);font-size:15px}
+.plat li::before{content:"→ ";color:var(--blue2);font-weight:800}
+.note{margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+
+/* comparison */
+.cmp{margin-top:22px;display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+@media(max-width:900px){.cmp{grid-template-columns:1fr}}
+.cmp .card h3{font-size:19px;margin-bottom:14px}
+.cmp table{width:100%;border-collapse:collapse}
+.cmp tr+tr td{border-top:1px solid var(--line)}
+.cmp td{padding:14px 0;vertical-align:top}
+.cmp td.lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-right:14px;white-space:nowrap;padding-top:17px}
+.cmp .row{display:flex;align-items:center;gap:10px;font-size:15px}
+.cmp .row+.row{margin-top:8px}
+.chip{flex:none;display:inline-block;min-width:66px;text-align:center;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;color:#fff}
+.chip.an{background:var(--blue)}
+.chip.io{background:#e8711a}
+@media(max-width:600px){.cmp td.lab{display:block;padding:14px 0 6px}.cmp td.val{display:block;padding-top:0}.cmp tr{display:block}.cmp tr+tr td.lab{border-top:1px solid var(--line)}.cmp tr+tr td.val{border-top:0}}
+.lim .lead{color:var(--muted);font-size:15px;margin-bottom:12px}
+.lim .lead b{color:var(--text)}
+.lim ul{list-style:none;display:grid;gap:9px;color:var(--muted);font-size:15px}
+.lim li{padding-left:22px;position:relative}
+.lim li::before{content:"";position:absolute;left:0;top:8px;width:9px;height:9px;border-radius:50%;background:#e8711a}
+
+/* gallery */
+.gal{display:flex;align-items:center;gap:18px;overflow-x:auto;padding:10px 4px 26px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.shot{flex:none;scroll-snap-align:start;border-radius:26px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 24px 60px rgba(0,0,0,.5);position:relative}
+.shot img{height:520px;width:auto}
+.shot.wide img{height:260px}
+.shot figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;font-size:13px;font-weight:700;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+@media(max-width:600px){.shot img{height:420px}.shot.wide img{height:200px}}
+
+/* faq */
+details{border:1px solid var(--line);border-radius:16px;background:var(--card);margin-bottom:10px}
+summary{cursor:pointer;padding:18px 22px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::after{content:"+";font-size:22px;color:var(--blue2);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 22px 18px;color:var(--muted);font-size:15px}
+
+/* download */
+.dl{background:linear-gradient(135deg,#1a2a63,#0f1a3d);border:1px solid #2c3d78;border-radius:32px;padding:56px 40px;text-align:center;position:relative;overflow:hidden}
+.dl::after{content:"";position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(rgba(90,169,255,.25),transparent 70%);right:-200px;top:-200px;pointer-events:none}
+.dl img{width:92px;height:92px;border-radius:26px;margin:0 auto 20px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.dl .cta{justify-content:center;margin-top:24px}
+.dl .alt{margin-top:18px;font-size:13.5px;color:var(--muted)}
+.dl .alt a{color:var(--blue2);text-decoration:underline}
+
+footer{border-top:1px solid var(--line);padding:36px 0;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+footer a:hover{color:var(--text)}
+.credit b{color:var(--text)}
+
+/* reveal */
+html.js .rv{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}
+html.js .rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/icon.png" alt=""> Divider</a>
+    <div class="links">
+      <a href="#how" data-tr="Nasıl çalışır" data-en="How it works">Nasıl çalışır</a>
+      <a href="#features" data-tr="Özellikler" data-en="Features">Özellikler</a>
+      <a href="#platforms" data-tr="Platformlar" data-en="Platforms">Platformlar</a>
+      <a href="#shots" data-tr="Ekranlar" data-en="Screens">Ekranlar</a>
+      <a href="#faq" data-tr="SSS" data-en="FAQ">SSS</a>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="lang" role="group" aria-label="Language"><button class="on" data-lang="tr">TR</button><button data-lang="en">EN</button></div>
+      <a class="btn p s" href="#download" data-tr="İndir" data-en="Download">İndir</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">✦ <span data-tr="Android 12L+ · iOS 16+" data-en="Android 12L+ · iOS 16+">Android 12L+ · iOS 16+</span></div>
+      <h1><span class="a" data-tr="İki uygulama." data-en="Two apps.">İki uygulama.</span><br>
+          <span data-tr="Tek ekran." data-en="One screen.">Tek ekran.</span><br>
+          <span class="b" data-tr="Tek dokunuş." data-en="One tap.">Tek dokunuş.</span></h1>
+      <p class="lead" data-tr="Divider ile favori iki uygulamanı seç, bölmelere sürükle, &quot;Birlikte aç&quot;a bas. Üst üste ya da yan yana — ekranı sen değil, Divider böler."
+         data-en="Pick two favourite apps, drop them into the halves, tap &quot;Open together&quot;. Stacked or side by side — Divider splits the screen so you don't have to.">Divider ile favori iki uygulamanı seç, bölmelere sürükle, "Birlikte aç"a bas. Üst üste ya da yan yana — ekranı sen değil, Divider böler.</p>
+      <div class="cta">
+        <a class="store" id="play-link" href="https://play.google.com/store/apps/details?id=com.trt.divider" aria-label="Google Play">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3.6 2.6c-.4.2-.6.7-.6 1.3v16.2c0 .6.2 1.1.6 1.3l9.4-9.4-9.4-9.4z" fill="#34a853"/><path d="M16.3 8.7 3.6 2.6l9.4 9.4 3.3-3.3z" fill="#4285f4"/><path d="M16.3 15.3 13 12l-9.4 9.4 12.7-6.1z" fill="#ea4335"/><path d="M20.4 10.6l-4.1-1.9L13 12l3.3 3.3 4.1-1.9c1.1-.6 1.1-2.2 0-2.8z" fill="#fbbc04"/></svg>
+          <span><small data-tr="Google Play'de" data-en="Get it on">Google Play'de</small><b data-tr="Edinin" data-en="Google Play">Edinin</b></span>
+        </a>
+        <a class="store soon" id="ios-link" href="#download" aria-label="App Store">
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.7-1-2.7-4.1zM14.1 5.8c.6-.8 1.1-1.9.9-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.5 2.8-1.3z"/></svg>
+          <span><small data-tr="App Store'da" data-en="Download on the">App Store'da</small><b data-tr="Yakında" data-en="App Store">Yakında</b></span>
+          <span class="tag" data-tr="İNCELEMEDE" data-en="SOON">İNCELEMEDE</span>
+        </a>
+      </div>
+      <div class="proof">
+        <span data-tr="Veri toplamaz" data-en="No data collection">Veri toplamaz</span>
+        <span data-tr="Reklam yok" data-en="No ads">Reklam yok</span>
+        <span data-tr="Açık / koyu tema" data-en="Light / dark theme">Açık / koyu tema</span>
+        <span data-tr="Türkçe + English" data-en="Turkish + English">Türkçe + English</span>
+      </div>
+    </div>
+
+    <div class="demo rv" id="demo">
+      <div class="demo-ctl">
+        <button class="on" data-mode="stack" data-tr="▤ Üst üste" data-en="▤ Stacked">▤ Üst üste</button>
+        <button data-mode="side" data-tr="▥ Yan yana" data-en="▥ Side by side">▥ Yan yana</button>
+      </div>
+      <div class="phone" id="phone">
+        <div class="notch"></div>
+        <div class="screen" id="screen">
+          <div class="pane" data-slot="0"><span class="bd">1</span><span class="ph" data-tr="Bir uygulamaya dokun" data-en="Tap an app below">Bir uygulamaya dokun</span></div>
+          <div class="handle"></div>
+          <div class="pane" data-slot="1"><span class="bd">2</span><span class="ph" data-tr="Sonra bir tane daha" data-en="Then one more">Sonra bir tane daha</span></div>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <p class="hint" data-tr="Canlı demo: iki uygulama seç, bölünmeyi izle. Dolu bölmeye dokununca boşalır." data-en="Live demo: pick two apps, watch the split. Tap a filled half to clear it.">Canlı demo: iki uygulama seç, bölünmeyi izle. Dolu bölmeye dokununca boşalır.</p>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="k" data-tr="Nasıl çalışır" data-en="How it works">Nasıl çalışır</div>
+      <h2 data-tr="Üç adım. Beş saniye." data-en="Three steps. Five seconds.">Üç adım. Beş saniye.</h2>
+      <p data-tr="Android'in bölünmüş ekranını her seferinde elle kurmak yerine, çiftini bir kez seç ve kaydet. Sonrası tek dokunuş." data-en="Instead of setting up Android's split screen by hand every time, pick your pair once and save it. After that, it's one tap.">Android'in bölünmüş ekranını her seferinde elle kurmak yerine, çiftini bir kez seç ve kaydet. Sonrası tek dokunuş.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card step rv"><div class="n">1</div><h3 data-tr="Seç" data-en="Pick">Seç</h3><p data-tr="Kurulu uygulamalar listesinden iki tanesine dokun ya da bölmelere sürükle. Hangi uygulamanın hangi bölmede olduğu numaralı rozetlerle her an belli." data-en="Tap two apps from your installed list or drag them into the halves. Numbered badges always show which app lives in which half.">Kurulu uygulamalar listesinden iki tanesine dokun ya da bölmelere sürükle. Hangi uygulamanın hangi bölmede olduğu numaralı rozetlerle her an belli.</p></div>
+      <div class="card step rv"><div class="n">2</div><h3 data-tr="Yönünü belirle" data-en="Choose a layout">Yönünü belirle</h3><p data-tr="Üst üste mi, yan yana mı? Yan yana seçersen Divider ekranı yataya çevirir ve iki uygulamayı sol-sağ yerleştirir." data-en="Stacked or side by side? Pick side by side and Divider rotates the screen to landscape and places the apps left and right.">Üst üste mi, yan yana mı? Yan yana seçersen Divider ekranı yataya çevirir ve iki uygulamayı sol-sağ yerleştirir.</p></div>
+      <div class="card step rv"><div class="n">3</div><h3 data-tr="Birlikte aç" data-en="Open together">Birlikte aç</h3><p data-tr="Tek dokunuşla iki uygulama bölünmüş ekranda açılır. Çifti yıldızla kaydet, ana ekrana kısayol olarak ekle — bir sonraki sefer Divider'ı açmana bile gerek kalmaz." data-en="One tap and both apps open in split screen. Star the pair to save it, pin it to your home screen — next time you won't even need to open Divider.">Tek dokunuşla iki uygulama bölünmüş ekranda açılır. Çifti yıldızla kaydet, ana ekrana kısayol olarak ekle — bir sonraki sefer Divider'ı açmana bile gerek kalmaz.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="k" data-tr="Özellikler" data-en="Features">Özellikler</div>
+      <h2 data-tr="Küçük uygulama, düşünülmüş ayrıntılar." data-en="A small app with thoughtful details.">Küçük uygulama, düşünülmüş ayrıntılar.</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card rv"><div class="ic">⭐</div><h3 data-tr="Kayıtlı çiftler" data-en="Saved pairs">Kayıtlı çiftler</h3><p data-tr="Sık kullandığın kombinasyonları (YouTube + Notlar, Harita + Mesajlar…) kaydet; çip olarak üstte dursun, dokununca yüklensin." data-en="Save the combos you use most (YouTube + Notes, Maps + Messages…); they live as chips at the top and load with a tap.">Sık kullandığın kombinasyonları (YouTube + Notlar, Harita + Mesajlar…) kaydet; çip olarak üstte dursun, dokununca yüklensin.</p></div>
+      <div class="card rv"><div class="ic">📌</div><h3 data-tr="Ana ekran kısayolu" data-en="Home screen shortcut">Ana ekran kısayolu</h3><p data-tr="Bir çifti ana ekrana sabitle. Kısayola dokununca iki uygulama doğrudan bölünmüş ekranda açılır." data-en="Pin a pair to your home screen. Tapping the shortcut opens both apps straight into split screen.">Bir çifti ana ekrana sabitle. Kısayola dokununca iki uygulama doğrudan bölünmüş ekranda açılır.</p></div>
+      <div class="card rv"><div class="ic">⇄</div><h3 data-tr="Yer değiştir" data-en="Swap">Yer değiştir</h3><p data-tr="Üstteki alta, alttaki üste — tek düğme. Aynı uygulamayı iki bölmeye koymanı da engeller." data-en="Top goes bottom, bottom goes top — one button. It also stops you putting the same app in both halves.">Üstteki alta, alttaki üste — tek düğme. Aynı uygulamayı iki bölmeye koymanı da engeller.</p></div>
+      <div class="card rv"><div class="ic">🔍</div><h3 data-tr="Anında arama" data-en="Instant search">Anında arama</h3><p data-tr="Yüzlerce uygulama arasında kaybolma. Yazmaya başla, liste anında daralsın." data-en="Don't get lost among hundreds of apps. Start typing and the list narrows instantly.">Yüzlerce uygulama arasında kaybolma. Yazmaya başla, liste anında daralsın.</p></div>
+      <div class="card rv"><div class="ic">🌗</div><h3 data-tr="Tema ve dil" data-en="Theme and language">Tema ve dil</h3><p data-tr="Sistem / açık / koyu tema, Türkçe ve İngilizce arayüz. Varsayılan açılış modunu Ayarlar'dan seç." data-en="System / light / dark theme, Turkish and English UI. Pick your default layout in Settings.">Sistem / açık / koyu tema, Türkçe ve İngilizce arayüz. Varsayılan açılış modunu Ayarlar'dan seç.</p></div>
+      <div class="card rv"><div class="ic">🔒</div><h3 data-tr="Sıfır veri" data-en="Zero data">Sıfır veri</h3><p data-tr="Divider hiçbir kişisel veri toplamaz, sunucuya hiçbir şey göndermez, reklam kimliği kullanmaz. Tercihlerin yalnızca cihazında." data-en="Divider collects no personal data, sends nothing to a server and uses no advertising ID. Your preferences stay on your device.">Divider hiçbir kişisel veri toplamaz, sunucuya hiçbir şey göndermez, reklam kimliği kullanmaz. Tercihlerin yalnızca cihazında.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="platforms">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="k" data-tr="Platformlar" data-en="Platforms">Platformlar</div>
+      <h2 data-tr="Android'de gerçek uygulamalar. iOS'ta web panelleri." data-en="Real apps on Android. Web panels on iOS.">Android'de gerçek uygulamalar. iOS'ta web panelleri.</h2>
+      <p data-tr="İki platform farklı kurallarla çalışır; Divider ikisinde de dürüst olanı yapar." data-en="The two platforms play by different rules; Divider does the honest thing on both.">İki platform farklı kurallarla çalışır; Divider ikisinde de dürüst olanı yapar.</p>
+    </div>
+    <div class="plat">
+      <div class="card rv">
+        <div class="head"><b>Android</b><span class="pill ok" data-tr="Yerel bölünmüş ekran" data-en="Native split screen">Yerel bölünmüş ekran</span></div>
+        <p style="color:var(--muted)" data-tr="Divider, Android'in kendi çoklu pencere özelliğini kullanır: seçtiğin iki uygulamayı sistemden yan yana açmasını ister. Uygulamalar gerçek uygulamalardır — kendi bildirimleri, girişleri, her şeyiyle." data-en="Divider uses Android's own multi-window feature: it asks the system to open your two chosen apps next to each other. They are the real apps — with their own notifications, logins, everything.">Divider, Android'in kendi çoklu pencere özelliğini kullanır: seçtiğin iki uygulamayı sistemden yan yana açmasını ister. Uygulamalar gerçek uygulamalardır — kendi bildirimleri, girişleri, her şeyiyle.</p>
+        <ul>
+          <li data-tr="Android 12L ve üstü: tam ekrandan tek dokunuşla bölme" data-en="Android 12L and up: split from full screen with one tap">Android 12L ve üstü: tam ekrandan tek dokunuşla bölme</li>
+          <li data-tr="Android 8–11: bölünmüş ekran açıkken çalışır" data-en="Android 8–11: works once split screen is already open">Android 8–11: bölünmüş ekran açıkken çalışır</li>
+          <li data-tr="Dikeyde üst üste, yatayda yan yana (otomatik döndürme)" data-en="Stacked in portrait, side by side in landscape (auto-rotate)">Dikeyde üst üste, yatayda yan yana (otomatik döndürme)</li>
+          <li data-tr="Samsung Galaxy ve stok Android'de doğrulandı" data-en="Verified on Samsung Galaxy and stock Android">Samsung Galaxy ve stok Android'de doğrulandı</li>
+        </ul>
+        <div class="note" data-tr="Not: Çoklu pencereyi kapatmış bazı uygulamalar sistem tarafından bölünemez; Divider bu durumda seni bilgilendirir." data-en="Note: some apps opt out of multi-window and cannot be split by the system; Divider tells you when that happens.">Not: Çoklu pencereyi kapatmış bazı uygulamalar sistem tarafından bölünemez; Divider bu durumda seni bilgilendirir.</div>
+      </div>
+      <div class="card rv">
+        <div class="head"><b>iOS</b><span class="pill web" data-tr="Çoklu web paneli" data-en="Multi web panel">Çoklu web paneli</span></div>
+        <p style="color:var(--muted)" data-tr="iPhone'da bölünmüş ekran yoktur ve bir uygulama başka bir uygulamayı açıp yerleştiremez. Bu yüzden Divider iOS'ta her bölmede servisin web sürümünü gösterir: 2 veya 3 panel, her biri kendi oturumuyla." data-en="iPhone has no split screen, and one app cannot launch and place another. So on iOS, Divider shows each service's web version in its own panel: 2 or 3 panels, each with its own session.">iPhone'da bölünmüş ekran yoktur ve bir uygulama başka bir uygulamayı açıp yerleştiremez. Bu yüzden Divider iOS'ta her bölmede servisin web sürümünü gösterir: 2 veya 3 panel, her biri kendi oturumuyla.</p>
+        <ul>
+          <li data-tr="2 ya da 3 panel; dikeyde üst üste, yatayda yan yana" data-en="2 or 3 panels; stacked in portrait, side by side in landscape">2 ya da 3 panel; dikeyde üst üste, yatayda yan yana</li>
+          <li data-tr="Her panelde ayrı çerez / oturum deposu" data-en="Separate cookie / session store per panel">Her panelde ayrı çerez / oturum deposu</li>
+          <li data-tr="Panel başına servis seçimi ve yenile düğmesi" data-en="Per-panel service picker and reload button">Panel başına servis seçimi ve yenile düğmesi</li>
+          <li data-tr="iOS 16 ve üstü, iPhone ve iPad" data-en="iOS 16 and up, iPhone and iPad">iOS 16 ve üstü, iPhone ve iPad</li>
+        </ul>
+        <div class="note" data-tr="Şeffaflık: iOS sürümü yerel uygulamaları değil web sitelerini gösterir. Bazı servislerin mobil web sürümü uygulamalarından daha kısıtlı olabilir." data-en="Transparency: the iOS version shows websites, not native apps. Some services' mobile web versions are more limited than their apps.">Şeffaflık: iOS sürümü yerel uygulamaları değil web sitelerini gösterir. Bazı servislerin mobil web sürümü uygulamalarından daha kısıtlı olabilir.</div>
+      </div>
+    </div>
+
+    <div class="cmp">
+      <div class="card rv">
+        <h3 data-tr="Yan yana: Android ve iOS" data-en="Side by side: Android and iOS">Yan yana: Android ve iOS</h3>
+        <table>
+          <tr>
+            <td class="lab" data-tr="Ne açılır" data-en="What opens">Ne açılır</td>
+            <td class="val">
+              <div class="row"><span class="chip an">Android</span><span data-tr="Telefondaki gerçek uygulamalar" data-en="The real apps installed on your phone">Telefondaki gerçek uygulamalar</span></div>
+              <div class="row"><span class="chip io">iOS</span><span data-tr="Servisin mobil web sitesi, web görünümünde" data-en="The service's mobile website, in a web view">Servisin mobil web sitesi, web görünümünde</span></div>
+            </td>
+          </tr>
+          <tr>
+            <td class="lab" data-tr="Ekranı kim böler" data-en="Who splits the screen">Ekranı kim böler</td>
+            <td class="val">
+              <div class="row"><span class="chip an">Android</span><span data-tr="Android'in kendi bölünmüş ekranı" data-en="Android's own split screen">Android'in kendi bölünmüş ekranı</span></div>
+              <div class="row"><span class="chip io">iOS</span><span data-tr="Divider, kendi penceresinin içinde" data-en="Divider, inside its own window">Divider, kendi penceresinin içinde</span></div>
+            </td>
+          </tr>
+          <tr>
+            <td class="lab" data-tr="Neler seçilebilir" data-en="What you can pick">Neler seçilebilir</td>
+            <td class="val">
+              <div class="row"><span class="chip an">Android</span><span data-tr="Kurulu herhangi iki uygulama" data-en="Any two installed apps">Kurulu herhangi iki uygulama</span></div>
+              <div class="row"><span class="chip io">iOS</span><span data-tr="Yalnızca web adresi olan servisler (2–3 panel)" data-en="Only services with a web address (2–3 panes)">Yalnızca web adresi olan servisler (2–3 panel)</span></div>
+            </td>
+          </tr>
+          <tr>
+            <td class="lab" data-tr="Giriş" data-en="Sign-in">Giriş</td>
+            <td class="val">
+              <div class="row"><span class="chip an">Android</span><span data-tr="Uygulamadaki mevcut oturumun" data-en="Your existing session inside each app">Uygulamadaki mevcut oturumun</span></div>
+              <div class="row"><span class="chip io">iOS</span><span data-tr="Her panelde web'den ayrı giriş" data-en="A separate web sign-in in each pane">Her panelde web'den ayrı giriş</span></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="card lim rv">
+        <h3 data-tr="iOS'ta mobil web sınırları" data-en="Mobile web limits on iOS">iOS'ta mobil web sınırları</h3>
+        <p class="lead" data-tr="iPhone'da bölünmüş ekran yoktur ve bir uygulama başka bir uygulamayı açamaz ya da içine alamaz. <b>Bu Apple'ın kuralıdır, Divider'ın eksiği değil.</b> Yani iOS'ta Instagram veya X uygulaması Divider'ın içinde hiç çalışmaz; yalnızca web siteleri çalışır. Pratikte bu şu demek:" data-en="iPhone has no split screen, and an app cannot launch or embed another app. <b>This is Apple's rule, not a missing feature.</b> So on iOS the Instagram or X app never runs inside Divider; only their websites do. What that means in practice:">iPhone'da bölünmüş ekran yoktur ve bir uygulama başka bir uygulamayı açamaz ya da içine alamaz. <b>Bu Apple'ın kuralıdır, Divider'ın eksiği değil.</b> Yani iOS'ta Instagram veya X uygulaması Divider'ın içinde hiç çalışmaz; yalnızca web siteleri çalışır. Pratikte bu şu demek:</p>
+        <ul>
+          <li data-tr="Web sitesinden giriş yaparsın; telefondaki uygulamanın oturumu kullanılmaz." data-en="You sign in on the website; the app's session on your phone is not used.">Web sitesinden giriş yaparsın; telefondaki uygulamanın oturumu kullanılmaz.</li>
+          <li data-tr="Bazı özellikler mobil web'de eksik ya da kısıtlı: Reels, TikTok otomatik oynatma, bazı mesajlaşmalar." data-en="Some features are missing or limited on mobile web, e.g. Reels, TikTok autoplay, some direct messages.">Bazı özellikler mobil web'de eksik ya da kısıtlı: Reels, TikTok otomatik oynatma, bazı mesajlaşmalar.</li>
+          <li data-tr="Servisler “Uygulamada aç” şeridi gösterebilir; Divider bunu gizleyemez." data-en="Services may show an “Open in app” banner; Divider cannot hide it.">Servisler “Uygulamada aç” şeridi gösterebilir; Divider bunu gizleyemez.</li>
+          <li data-tr="Panellerden bildirim gelmez." data-en="No notifications from the panes.">Panellerden bildirim gelmez.</li>
+          <li data-tr="Kurulu herhangi bir uygulamayı panele koyamazsın; yalnızca web sitesi olan servisleri." data-en="You cannot put just any installed app in a pane, only services that have a website.">Kurulu herhangi bir uygulamayı panele koyamazsın; yalnızca web sitesi olan servisleri.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="shots" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <div class="k" data-tr="Ekranlar" data-en="Screens">Ekranlar</div>
+      <h2 data-tr="Gerçek cihazlardan, kurgu değil." data-en="From real devices, not mock-ups.">Gerçek cihazlardan, kurgu değil.</h2>
+      <p data-tr="Aşağıdaki kareler Android 15 ve iPhone 16e üzerinde uygulamanın kendisinden alındı." data-en="The frames below were captured from the app itself on Android 15 and iPhone 16e.">Aşağıdaki kareler Android 15 ve iPhone 16e üzerinde uygulamanın kendisinden alındı.</p>
+    </div>
+    <div class="gal rv">
+      <figure class="shot"><img src="assets/android-home.png" alt="Divider Android ana ekran" loading="lazy"><figcaption data-tr="Android · Çiftini kur" data-en="Android · Set up your pair">Android · Çiftini kur</figcaption></figure>
+      <figure class="shot"><img src="assets/android-split.png" alt="Android bölünmüş ekran: YouTube ve Chrome" loading="lazy"><figcaption data-tr="Android · Tek dokunuş sonrası" data-en="Android · After one tap">Android · Tek dokunuş sonrası</figcaption></figure>
+      <figure class="shot"><img src="assets/ios-portrait.png" alt="iOS iki panel" loading="lazy"><figcaption data-tr="iOS · İki panel, üst üste" data-en="iOS · Two panels, stacked">iOS · İki panel, üst üste</figcaption></figure>
+      <figure class="shot wide"><img src="assets/ios-landscape.png" alt="iOS yatay yan yana" loading="lazy"><figcaption data-tr="iOS · Yatayda yan yana" data-en="iOS · Side by side in landscape">iOS · Yatayda yan yana</figcaption></figure>
+      <figure class="shot"><img src="assets/android-splash.png" alt="Divider açılış ekranı" loading="lazy"><figcaption data-tr="Açılış ekranı" data-en="Splash screen">Açılış ekranı</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap" style="max-width:820px">
+    <div class="sec-h rv">
+      <div class="k" data-tr="Sık sorulanlar" data-en="FAQ">Sık sorulanlar</div>
+      <h2 data-tr="Merak edilenler" data-en="Common questions">Merak edilenler</h2>
+    </div>
+    <div class="rv">
+      <details><summary data-tr="Divider uygulamaları kendi içinde mi çalıştırıyor?" data-en="Does Divider run the apps inside itself?">Divider uygulamaları kendi içinde mi çalıştırıyor?</summary><p data-tr="Hayır. Android'de bölme işini işletim sistemi yapar; Divider yalnızca hangi iki uygulamanın açılacağını seçtirir ve sistemden bölmeyi ister. Bu yüzden uygulamalar tamamen gerçek ve güvenlidir." data-en="No. On Android the operating system does the splitting; Divider only lets you choose which two apps to open and asks the system for the split. That's why the apps are fully real and safe.">Hayır. Android'de bölme işini işletim sistemi yapar; Divider yalnızca hangi iki uygulamanın açılacağını seçtirir ve sistemden bölmeyi ister. Bu yüzden uygulamalar tamamen gerçek ve güvenlidir.</p></details>
+      <details><summary data-tr="Neden iOS sürümü farklı?" data-en="Why is the iOS version different?">Neden iOS sürümü farklı?</summary><p data-tr="iPhone'da bölünmüş ekran yok ve Apple bir uygulamanın başka uygulamaları açıp konumlandırmasına izin vermiyor. iOS'ta yapılabilen en iyi şey, servislerin web sürümlerini ayrı panellerde göstermek; Divider da bunu yapar." data-en="iPhone has no split screen and Apple doesn't let one app launch and position other apps. The best possible thing on iOS is showing the services' web versions in separate panels, and that's what Divider does.">iPhone'da bölünmüş ekran yok ve Apple bir uygulamanın başka uygulamaları açıp konumlandırmasına izin vermiyor. iOS'ta yapılabilen en iyi şey, servislerin web sürümlerini ayrı panellerde göstermek; Divider da bunu yapar.</p></details>
+      <details><summary data-tr="Üç uygulamayı aynı anda açabilir miyim?" data-en="Can I open three apps at once?">Üç uygulamayı aynı anda açabilir miyim?</summary><p data-tr="Android telefonlarda sistem en fazla iki uygulamayı böler; bazı tablet ve katlanabilir cihazlar üçe izin verir. iOS sürümünde 3 panel desteklenir." data-en="On Android phones the system splits at most two apps; some tablets and foldables allow three. The iOS version supports 3 panels.">Android telefonlarda sistem en fazla iki uygulamayı böler; bazı tablet ve katlanabilir cihazlar üçe izin verir. iOS sürümünde 3 panel desteklenir.</p></details>
+      <details><summary data-tr="Hangi izinleri istiyor?" data-en="Which permissions does it need?">Hangi izinleri istiyor?</summary><p data-tr="Android'de kurulu uygulamaları listelemek için başlatıcı sorgusu ve yan yana modda ekranı döndürmek için isteğe bağlı sistem ayarı izni. İnternet, konum, kişiler gibi hiçbir hassas izin yok." data-en="On Android: the launcher query to list installed apps and an optional system-settings permission to rotate the screen in side-by-side mode. No internet, location, contacts or other sensitive permissions.">Android'de kurulu uygulamaları listelemek için başlatıcı sorgusu ve yan yana modda ekranı döndürmek için isteğe bağlı sistem ayarı izni. İnternet, konum, kişiler gibi hiçbir hassas izin yok.</p></details>
+      <details><summary data-tr="Ücretli mi?" data-en="Is it paid?">Ücretli mi?</summary><p data-tr="Divider ücretsizdir ve reklam içermez." data-en="Divider is free and contains no ads.">Divider ücretsizdir ve reklam içermez.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="dl rv">
+      <img src="assets/icon.png" alt="Divider logosu">
+      <h2 data-tr="Ekranını ikiye böl. Bugün." data-en="Split your screen. Today.">Ekranını ikiye böl. Bugün.</h2>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto" data-tr="Ücretsiz, reklamsız, veri toplamaz. Android için Google Play'de; iOS sürümü App Store incelemesinde." data-en="Free, ad-free, no data collection. On Google Play for Android; the iOS version is in App Store review.">Ücretsiz, reklamsız, veri toplamaz. Android için Google Play'de; iOS sürümü App Store incelemesinde.</p>
+      <div class="cta">
+        <a class="store" href="https://play.google.com/store/apps/details?id=com.trt.divider">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3.6 2.6c-.4.2-.6.7-.6 1.3v16.2c0 .6.2 1.1.6 1.3l9.4-9.4-9.4-9.4z" fill="#34a853"/><path d="M16.3 8.7 3.6 2.6l9.4 9.4 3.3-3.3z" fill="#4285f4"/><path d="M16.3 15.3 13 12l-9.4 9.4 12.7-6.1z" fill="#ea4335"/><path d="M20.4 10.6l-4.1-1.9L13 12l3.3 3.3 4.1-1.9c1.1-.6 1.1-2.2 0-2.8z" fill="#fbbc04"/></svg>
+          <span><small data-tr="Google Play'de" data-en="Get it on">Google Play'de</small><b data-tr="Edinin" data-en="Google Play">Edinin</b></span>
+        </a>
+        <a class="store soon" href="#download">
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.7-1-2.7-4.1zM14.1 5.8c.6-.8 1.1-1.9.9-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.5 2.8-1.3z"/></svg>
+          <span><small data-tr="App Store'da" data-en="Download on the">App Store'da</small><b data-tr="Yakında" data-en="App Store">Yakında</b></span>
+        </a>
+      </div>
+      <p class="alt"><span data-tr="Android'de doğrudan kurmak ister misin?" data-en="Prefer a direct Android install?">Android'de doğrudan kurmak ister misin?</span> <a href="downloads/divider.apk" download data-tr="APK'yı indir" data-en="Download the APK">APK'yı indir</a> <span style="opacity:.7">(com.trt.divider · 58 KB)</span></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="credit"><b>Divider</b> — <span data-tr="Fikir ve ürün sahibi:" data-en="Idea and product by">Fikir ve ürün sahibi:</span> <b>Faruk AK</b> · © 2026</div>
+    <div style="display:flex;gap:18px">
+      <a href="privacy.html" data-tr="Gizlilik politikası" data-en="Privacy policy">Gizlilik politikası</a>
+      <a href="#how" data-tr="Nasıl çalışır" data-en="How it works">Nasıl çalışır</a>
+      <a href="#download" data-tr="İndir" data-en="Download">İndir</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+/* ---- i18n ---- */
+const setLang = l => {
+  document.documentElement.lang = l;
+  document.querySelectorAll('[data-tr]').forEach(el => { el.innerHTML = el.dataset[l]; });
+  document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === l));
+  localStorage.setItem('divider-lang', l);
+};
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+const saved = localStorage.getItem('divider-lang') || 'tr';
+if (saved !== 'tr') setLang(saved);
+
+/* ---- reveal on scroll ---- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+/* ---- interactive demo ---- */
+const apps = [
+  ['YouTube', '#ff0033'], ['Maps', '#34a853'], ['Spotify', '#1db954'], ['Notes', '#f5c518'],
+  ['Chrome', '#4285f4'], ['Messages', '#5aa9ff'], ['Calendar', '#8b5cf6'], ['Mail', '#ff8a2a']
+];
+const chips = document.getElementById('chips'), screen = document.getElementById('screen'), phone = document.getElementById('phone');
+const slots = [null, null];
+const panes = [...screen.querySelectorAll('.pane')];
+apps.forEach(([n, c], i) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.dataset.i = i;
+  b.innerHTML = `<i style="background:${c}"></i>${n}`;
+  b.addEventListener('click', () => place(i));
+  chips.appendChild(b);
+});
+function place(i) {
+  const s = slots.indexOf(null); if (s < 0) return;
+  slots[s] = i; render(true);
+}
+function render(animate) {
+  panes.forEach((p, s) => {
+    const i = slots[s], ph = p.querySelector('.ph') || p.querySelector('.app');
+    if (i == null) {
+      p.classList.remove('full');
+      ph.outerHTML = `<span class="ph">${document.documentElement.lang === 'tr' ? (s ? 'Sonra bir tane daha' : 'Bir uygulamaya dokun') : (s ? 'Then one more' : 'Tap an app below')}</span>`;
+    } else {
+      p.classList.add('full');
+      ph.outerHTML = `<span class="app"><i style="background:${apps[i][1]}"></i>${apps[i][0]}</span>`;
+    }
+  });
+  chips.querySelectorAll('.chip').forEach(c => c.classList.toggle('used', slots.includes(+c.dataset.i)));
+  if (animate && !slots.includes(null)) { phone.style.transform = 'scale(1.04)'; setTimeout(() => phone.style.transform = '', 350); }
+}
+panes.forEach((p, s) => p.addEventListener('click', () => { if (slots[s] != null) { slots[s] = null; render(false); } }));
+document.querySelectorAll('.demo-ctl button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.demo-ctl button').forEach(x => x.classList.toggle('on', x === b));
+  const side = b.dataset.mode === 'side';
+  screen.classList.toggle('side', side);
+  phone.classList.toggle('land', side);
+}));
+/* auto demo: fill two slots after a moment if the user hasn't */
+setTimeout(() => { if (slots.every(s => s == null)) { place(0); setTimeout(() => { if (slots[1] == null) place(1); }, 700); } }, 1800);
+</script>
+</body>
+</html>
