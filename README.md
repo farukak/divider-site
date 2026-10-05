@@ -15,9 +15,8 @@ Yerelde bakmak için:
   sınıfını ve `İNCELEMEDE/SOON` etiketini kaldır; metni "Yakında" -> "İndirin".
 - **Google Play bağlantısı**: `https://play.google.com/store/apps/details?id=com.trt.divider`
   (paket adı sabit; uygulama yayınlanınca çalışır).
-- **APK**: `downloads/divider.apk` şu an debug-imzalı test APK'sı. Mağaza dışı dağıtım
-  istenmiyorsa `index.html`'deki "APK'yı indir" satırını sil; isteniyorsa release
-  imzalı APK ile değiştir.
+- **APK**: Site üzerinden APK dağıtılmaz (karar: 2026-10-05). İndirme yalnızca Google Play
+  ve App Store üzerinden; `downloads/` klasörü depodan kaldırıldı.
 - **Gizlilik iletişim e-postası**: `privacy.html` (kaynağı `../PRIVACY.md`) içindeki
   `<buraya iletişim e-postanız>` yer tutucusu.
 - **og:image / canonical**: `<meta property="og:image">` göreli yol; alan adı belli olunca
